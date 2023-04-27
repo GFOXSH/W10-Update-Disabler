@@ -26,6 +26,7 @@ type
     Button2: TButton;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -39,6 +40,25 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure LockCheck();
+var
+  s:String;
+begin
+  Reg1:=TRegistry.Create();
+  try
+    Reg1.RootKey:=HKEY_LOCAL_MACHINE;
+    Reg1.OpenKeyReadOnly('SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate');
+    s:=Reg1.ReadString('WUServer');
+    Reg1.CloseKey();
+  finally
+    Reg1.Free();
+  end;
+  if s='127.0.0.1' then
+    Form1.Caption:='Locked'
+  else
+    Form1.Caption:='Unlocked';
+end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
@@ -57,6 +77,7 @@ begin
   finally
     Reg1.Free();
   end;
+  LockCheck();
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
@@ -76,6 +97,12 @@ begin
   finally
     Reg1.Free();
   end;
+  LockCheck();
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  LockCheck();
 end;
 
 end.
